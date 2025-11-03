@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { streamObject } from 'ai';
+import ApiKeySettings from './ApiKeySettings';
 
 
 interface MCQ {
@@ -32,11 +33,25 @@ export default function MCQQuiz() {
   const [streaming, setStreaming] = useState(false);
   const [streamingQuestions, setStreamingQuestions] = useState<MCQ[]>([]);
   const [error, setError] = useState('');
+  const [apiKeys, setApiKeys] = useState({ openai: '', awsAccessKeyId: '', awsSecretAccessKey: '', awsRegion: 'us-east-1' });
 
   const generateMCQs = async () => {
     if (!prompt.trim()) {
       setError('Please enter a topic or prompt');
       return;
+    }
+
+    // Check if API key is available for selected model
+    if (aiModel === 'openai') {
+      if (!apiKeys.openai) {
+        setError('Please configure your OpenAI API key in settings');
+        return;
+      }
+    } else if (aiModel === 'claude') {
+      if (!apiKeys.awsAccessKeyId || !apiKeys.awsSecretAccessKey || !apiKeys.awsRegion) {
+        setError('Please configure all AWS credentials (Access Key ID, Secret Access Key, and Region) in settings');
+        return;
+      }
     }
 
     setLoading(true);
@@ -51,7 +66,16 @@ export default function MCQQuiz() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ prompt, questionCount, aiModel, difficulty }),
+        body: JSON.stringify({ 
+          prompt, 
+          questionCount, 
+          aiModel, 
+          difficulty,
+          apiKey: aiModel === 'openai' ? apiKeys.openai : undefined,
+          awsAccessKeyId: aiModel === 'claude' ? apiKeys.awsAccessKeyId : undefined,
+          awsSecretAccessKey: aiModel === 'claude' ? apiKeys.awsSecretAccessKey : undefined,
+          awsRegion: aiModel === 'claude' ? apiKeys.awsRegion : undefined,
+        }),
       });
 
       if (!response.ok) {
@@ -74,6 +98,19 @@ export default function MCQQuiz() {
       return;
     }
 
+    // Check if API key is available for selected model
+    if (aiModel === 'openai') {
+      if (!apiKeys.openai) {
+        setError('Please configure your OpenAI API key in settings');
+        return;
+      }
+    } else if (aiModel === 'claude') {
+      if (!apiKeys.awsAccessKeyId || !apiKeys.awsSecretAccessKey || !apiKeys.awsRegion) {
+        setError('Please configure all AWS credentials (Access Key ID, Secret Access Key, and Region) in settings');
+        return;
+      }
+    }
+
     setStreaming(true);
     setError('');
     setQuestions([]);
@@ -87,7 +124,16 @@ export default function MCQQuiz() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ prompt, questionCount, aiModel, difficulty }),
+        body: JSON.stringify({ 
+          prompt, 
+          questionCount, 
+          aiModel, 
+          difficulty,
+          apiKey: aiModel === 'openai' ? apiKeys.openai : undefined,
+          awsAccessKeyId: aiModel === 'claude' ? apiKeys.awsAccessKeyId : undefined,
+          awsSecretAccessKey: aiModel === 'claude' ? apiKeys.awsSecretAccessKey : undefined,
+          awsRegion: aiModel === 'claude' ? apiKeys.awsRegion : undefined,
+        }),
       });
 
       if (!response.ok) {
@@ -209,6 +255,9 @@ export default function MCQQuiz() {
         <h1 className="text-4xl font-bold text-gray-800 mb-2">MCQ Quiz Builder</h1>
         <p className="text-gray-600">Enter a topic and get 10 multiple choice questions</p>
       </div>
+
+      {/* API Key Settings */}
+      <ApiKeySettings onKeysUpdate={setApiKeys} />
 
       {/* Prompt Input Section */}
       <div className="bg-white rounded-lg shadow-md p-6">

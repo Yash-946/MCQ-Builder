@@ -1,19 +1,37 @@
-import { openai } from '@ai-sdk/openai';
-import { bedrock } from '@ai-sdk/amazon-bedrock';
+import { createOpenAI } from '@ai-sdk/openai';
+import { createAmazonBedrock } from '@ai-sdk/amazon-bedrock';
 import { streamText } from 'ai';
 import { NextRequest } from 'next/server';
 
 export async function POST(request: NextRequest) {
   try {
-    const { prompt, questionCount = 10, aiModel = 'openai', difficulty = 'medium' } = await request.json();
+    const { 
+      prompt, 
+      questionCount = 10, 
+      aiModel = 'openai', 
+      difficulty = 'medium', 
+      apiKey,
+      awsAccessKeyId,
+      awsSecretAccessKey,
+      awsRegion
+    } = await request.json();
 
     if (!prompt) {
       return new Response('Prompt is required', { status: 400 });
     }
 
+    // Validate credentials based on selected model
+    if (aiModel === 'openai' && !apiKey) {
+      return new Response('OpenAI API key is required', { status: 400 });
+    }
+
+    if (aiModel === 'claude' && (!awsAccessKeyId || !awsSecretAccessKey || !awsRegion)) {
+      return new Response('AWS credentials (Access Key ID, Secret Access Key, and Region) are required for Claude', { status: 400 });
+    }
+
     // Validate question count
-    if (![5, 10, 15, 20, 2].includes(questionCount)) {
-      return new Response('Question count must be 5, 10, 15, or 20', { status: 400 });
+    if (![2, 5, 10, 15, 20].includes(questionCount)) {
+      return new Response('Question count must be 2, 5, 10, 15, or 20', { status: 400 });
     }
 
     // Validate AI model
@@ -26,10 +44,21 @@ export async function POST(request: NextRequest) {
       return new Response('Difficulty must be "easy", "medium", or "hard"', { status: 400 });
     }
 
-    // Select the appropriate model
-    const model = aiModel === 'claude' 
-      ? bedrock('apac.anthropic.claude-sonnet-4-20250514-v1:0')
-      : openai('gpt-4o');
+    // Select the appropriate model with credentials
+    let model;
+    if (aiModel === 'claude') {
+      const bedrockProvider = createAmazonBedrock({
+        region: awsRegion,
+        accessKeyId: awsAccessKeyId,
+        secretAccessKey: awsSecretAccessKey,
+      });
+      model = bedrockProvider('apac.anthropic.claude-sonnet-4-20250514-v1:0');
+    } else {
+      const openaiProvider = createOpenAI({
+        apiKey: apiKey,
+      });
+      model = openaiProvider('gpt-4o');
+    }
 
     // Create difficulty-specific instructions
     const difficultyInstructions = {
