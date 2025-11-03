@@ -98,8 +98,8 @@ export default function ApiKeySettings({ onKeysUpdate }: ApiKeySettingsProps) {
         <div className="space-y-4 pt-4 border-t border-gray-200">
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <p className="text-sm text-blue-800">
-              <strong>Note:</strong> Your API keys are stored only in your browser's local storage and are never sent to our servers. 
-              They are sent directly to the AI providers' APIs.
+              <strong>Note:</strong> Your API keys are stored only in your browser&apos;s local storage and are never sent to our servers. 
+              They are sent directly to the AI providers&apos; APIs.
             </p>
           </div>
 
@@ -248,7 +248,7 @@ export default function ApiKeySettings({ onKeysUpdate }: ApiKeySettingsProps) {
                 go to API Keys section, and create a new key.
               </li>
               <li>
-                <strong>Claude (Bedrock):</strong> This app uses AWS Bedrock for Claude. You'll need AWS credentials with Bedrock access.
+                <strong>Claude (Bedrock):</strong> This app uses AWS Bedrock for Claude. You&apos;ll need AWS credentials with Bedrock access.
               </li>
             </ul>
           </div>
