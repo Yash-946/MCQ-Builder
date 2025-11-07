@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 
 interface ApiKeys {
   openai: string;
+  gemini: string;
   awsAccessKeyId: string;
   awsSecretAccessKey: string;
   awsRegion: string;
@@ -17,12 +18,14 @@ export default function ApiKeySettings({ onKeysUpdate }: ApiKeySettingsProps) {
   const [showSettings, setShowSettings] = useState(false);
   const [apiKeys, setApiKeys] = useState<ApiKeys>({
     openai: '',
+    gemini: '',
     awsAccessKeyId: '',
     awsSecretAccessKey: '',
     awsRegion: 'us-east-1',
   });
   const [showKeys, setShowKeys] = useState({
     openai: false,
+    gemini: false,
     awsAccessKeyId: false,
     awsSecretAccessKey: false,
   });
@@ -62,12 +65,13 @@ export default function ApiKeySettings({ onKeysUpdate }: ApiKeySettingsProps) {
       localStorage.removeItem('mcq_api_keys');
       setApiKeys({
         openai: '',
+        gemini: '',
         awsAccessKeyId: '',
         awsSecretAccessKey: '',
         awsRegion: 'us-east-1',
       });
       setSavedStatus('🗑️ API keys cleared');
-      onKeysUpdate?.({ openai: '', awsAccessKeyId: '', awsSecretAccessKey: '', awsRegion: 'us-east-1' });
+      onKeysUpdate?.({ openai: '', gemini: '', awsAccessKeyId: '', awsSecretAccessKey: '', awsRegion: 'us-east-1' });
       
       setTimeout(() => {
         setSavedStatus('');
@@ -75,7 +79,7 @@ export default function ApiKeySettings({ onKeysUpdate }: ApiKeySettingsProps) {
     }
   };
 
-  const hasAnySavedKey = apiKeys.openai || apiKeys.awsAccessKeyId || apiKeys.awsSecretAccessKey;
+  const hasAnySavedKey = apiKeys.openai || apiKeys.gemini || apiKeys.awsAccessKeyId || apiKeys.awsSecretAccessKey;
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6 mb-6">
@@ -130,6 +134,36 @@ export default function ApiKeySettings({ onKeysUpdate }: ApiKeySettingsProps) {
             </div>
             <p className="text-xs text-gray-500 mt-1">
               Get your API key from <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">OpenAI Platform</a>
+            </p>
+          </div>
+
+          {/* Google Gemini API Key */}
+          <div>
+            <label htmlFor="gemini-key" className="block text-sm font-medium text-gray-700 mb-2">
+              Google Gemini API Key
+            </label>
+            <div className="flex gap-2">
+              <div className="relative flex-1">
+                <input
+                  id="gemini-key"
+                  type={showKeys.gemini ? 'text' : 'password'}
+                  value={apiKeys.gemini}
+                  onChange={(e) => setApiKeys({ ...apiKeys, gemini: e.target.value })}
+                  placeholder="AIza..."
+                  className="text-black w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowKeys({ ...showKeys, gemini: !showKeys.gemini })}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                  title={showKeys.gemini ? 'Hide key' : 'Show key'}
+                >
+                  {showKeys.gemini ? '👁️' : '👁️‍🗨️'}
+                </button>
+              </div>
+            </div>
+            <p className="text-xs text-gray-500 mt-1">
+              Get your API key from <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Google AI Studio</a>
             </p>
           </div>
 
@@ -248,6 +282,10 @@ export default function ApiKeySettings({ onKeysUpdate }: ApiKeySettingsProps) {
                 go to API Keys section, and create a new key.
               </li>
               <li>
+                <strong>Google Gemini:</strong> Visit <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Google AI Studio</a>, 
+                sign in with your Google account, and generate an API key.
+              </li>
+              <li>
                 <strong>Claude (Bedrock):</strong> This app uses AWS Bedrock for Claude. You&apos;ll need AWS credentials with Bedrock access.
               </li>
             </ul>
@@ -261,7 +299,7 @@ export default function ApiKeySettings({ onKeysUpdate }: ApiKeySettingsProps) {
 // Helper function to get API keys from localStorage
 export function getStoredApiKeys(): ApiKeys {
   if (typeof window === 'undefined') {
-    return { openai: '', awsAccessKeyId: '', awsSecretAccessKey: '', awsRegion: 'us-east-1' };
+    return { openai: '', gemini: '', awsAccessKeyId: '', awsSecretAccessKey: '', awsRegion: 'us-east-1' };
   }
   
   const savedKeys = localStorage.getItem('mcq_api_keys');
@@ -270,9 +308,9 @@ export function getStoredApiKeys(): ApiKeys {
       return JSON.parse(savedKeys);
     } catch (error) {
       console.error('Failed to parse stored API keys:', error);
-      return { openai: '', awsAccessKeyId: '', awsSecretAccessKey: '', awsRegion: 'us-east-1' };
+      return { openai: '', gemini: '', awsAccessKeyId: '', awsSecretAccessKey: '', awsRegion: 'us-east-1' };
     }
   }
-  return { openai: '', awsAccessKeyId: '', awsSecretAccessKey: '', awsRegion: 'us-east-1' };
+  return { openai: '', gemini: '', awsAccessKeyId: '', awsSecretAccessKey: '', awsRegion: 'us-east-1' };
 }
 

@@ -1,4 +1,5 @@
 import { createOpenAI } from '@ai-sdk/openai';
+import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import { createAmazonBedrock } from '@ai-sdk/amazon-bedrock';
 import { generateText } from 'ai';
 import { NextRequest, NextResponse } from 'next/server';
@@ -31,6 +32,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (aiModel === 'gemini' && !apiKey) {
+      return NextResponse.json(
+        { error: 'Google Gemini API key is required' },
+        { status: 400 }
+      );
+    }
+
     if (aiModel === 'claude' && (!awsAccessKeyId || !awsSecretAccessKey || !awsRegion)) {
       return NextResponse.json(
         { error: 'AWS credentials (Access Key ID, Secret Access Key, and Region) are required for Claude' },
@@ -47,9 +55,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate AI model
-    if (!['openai', 'claude'].includes(aiModel)) {
+    if (!['openai', 'gemini', 'claude'].includes(aiModel)) {
       return NextResponse.json(
-        { error: 'AI model must be either "openai" or "claude"' },
+        { error: 'AI model must be "openai", "gemini", or "claude"' },
         { status: 400 }
       );
     }
@@ -71,6 +79,11 @@ export async function POST(request: NextRequest) {
         secretAccessKey: awsSecretAccessKey,
       });
       model = bedrockProvider('apac.anthropic.claude-sonnet-4-20250514-v1:0');
+    } else if (aiModel === 'gemini') {
+      const geminiProvider = createGoogleGenerativeAI({
+        apiKey: apiKey,
+      });
+      model = geminiProvider('gemini-2.5-flash');
     } else {
       const openaiProvider = createOpenAI({
         apiKey: apiKey,

@@ -33,7 +33,7 @@ export default function MCQQuiz() {
   const [streaming, setStreaming] = useState(false);
   const [streamingQuestions, setStreamingQuestions] = useState<MCQ[]>([]);
   const [error, setError] = useState('');
-  const [apiKeys, setApiKeys] = useState({ openai: '', awsAccessKeyId: '', awsSecretAccessKey: '', awsRegion: 'us-east-1' });
+  const [apiKeys, setApiKeys] = useState({ openai: '', gemini: '', awsAccessKeyId: '', awsSecretAccessKey: '', awsRegion: 'us-east-1' });
 
   const generateMCQs = async () => {
     if (!prompt.trim()) {
@@ -45,6 +45,11 @@ export default function MCQQuiz() {
     if (aiModel === 'openai') {
       if (!apiKeys.openai) {
         setError('Please configure your OpenAI API key in settings');
+        return;
+      }
+    } else if (aiModel === 'gemini') {
+      if (!apiKeys.gemini) {
+        setError('Please configure your Google Gemini API key in settings');
         return;
       }
     } else if (aiModel === 'claude') {
@@ -71,7 +76,7 @@ export default function MCQQuiz() {
           questionCount, 
           aiModel, 
           difficulty,
-          apiKey: aiModel === 'openai' ? apiKeys.openai : undefined,
+          apiKey: aiModel === 'openai' ? apiKeys.openai : aiModel === 'gemini' ? apiKeys.gemini : undefined,
           awsAccessKeyId: aiModel === 'claude' ? apiKeys.awsAccessKeyId : undefined,
           awsSecretAccessKey: aiModel === 'claude' ? apiKeys.awsSecretAccessKey : undefined,
           awsRegion: aiModel === 'claude' ? apiKeys.awsRegion : undefined,
@@ -104,6 +109,11 @@ export default function MCQQuiz() {
         setError('Please configure your OpenAI API key in settings');
         return;
       }
+    } else if (aiModel === 'gemini') {
+      if (!apiKeys.gemini) {
+        setError('Please configure your Google Gemini API key in settings');
+        return;
+      }
     } else if (aiModel === 'claude') {
       if (!apiKeys.awsAccessKeyId || !apiKeys.awsSecretAccessKey || !apiKeys.awsRegion) {
         setError('Please configure all AWS credentials (Access Key ID, Secret Access Key, and Region) in settings');
@@ -129,7 +139,7 @@ export default function MCQQuiz() {
           questionCount, 
           aiModel, 
           difficulty,
-          apiKey: aiModel === 'openai' ? apiKeys.openai : undefined,
+          apiKey: aiModel === 'openai' ? apiKeys.openai : aiModel === 'gemini' ? apiKeys.gemini : undefined,
           awsAccessKeyId: aiModel === 'claude' ? apiKeys.awsAccessKeyId : undefined,
           awsSecretAccessKey: aiModel === 'claude' ? apiKeys.awsSecretAccessKey : undefined,
           awsRegion: aiModel === 'claude' ? apiKeys.awsRegion : undefined,
@@ -308,8 +318,9 @@ export default function MCQQuiz() {
                 className="text-black w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
                 disabled={loading}
               >
-                <option value="openai">OpenAI</option>
-                <option value="claude">Claude</option>
+                <option value="openai">OpenAI GPT-4o</option>
+                <option value="gemini">Google Gemini</option>
+                <option value="claude">Claude (Bedrock)</option>
               </select>
             </div>
             
@@ -392,7 +403,7 @@ export default function MCQQuiz() {
                   🔄 Streaming: {prompt}
                 </h2>
                 <p className="text-sm text-gray-600 mt-1">
-                  {streamingQuestions.length} Questions Generated • {difficulty === 'easy' ? '🟢 Easy' : difficulty === 'medium' ? '🟡 Medium' : '🔴 Hard'} Level • {aiModel === 'openai' ? 'OpenAI GPT-4o' : 'Claude 4 Sonnet'}
+                  {streamingQuestions.length} Questions Generated • {difficulty === 'easy' ? '🟢 Easy' : difficulty === 'medium' ? '🟡 Medium' : '🔴 Hard'} Level • {aiModel === 'openai' ? 'OpenAI GPT-4o' : aiModel === 'gemini' ? 'Google gemini-2.5-flash' : 'Claude 4 Sonnet'}
                 </p>
                 <p className="text-xs text-blue-600 mt-1">
                   DEBUG: Streaming questions array length: {streamingQuestions.length}
@@ -437,7 +448,7 @@ export default function MCQQuiz() {
                   Quiz: {prompt}
                 </h2>
                 <p className="text-sm text-gray-600 mt-1">
-                  {questions.length} Questions{questions.length !== questionCount ? ` (requested ${questionCount})` : ''} • {difficulty === 'easy' ? '🟢 Easy' : difficulty === 'medium' ? '🟡 Medium' : '🔴 Hard'} Level • {aiModel === 'openai' ? 'OpenAI GPT-4o' : 'Claude 4 Sonnet'}
+                  {questions.length} Questions{questions.length !== questionCount ? ` (requested ${questionCount})` : ''} • {difficulty === 'easy' ? '🟢 Easy' : difficulty === 'medium' ? '🟡 Medium' : '🔴 Hard'} Level • {aiModel === 'openai' ? 'OpenAI GPT-4o' : aiModel === 'gemini' ? 'Google Gemini 2.5 Flash' : 'Claude 4 Sonnet'}
                 </p>
               </div>
               {!showResults && (

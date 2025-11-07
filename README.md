@@ -4,7 +4,7 @@ An AI-powered Multiple Choice Questions generator that creates 10 MCQs based on 
 
 ## Features
 
-- 🤖 **AI-Powered**: Uses OpenAI's GPT model to generate questions
+- 🤖 **Multi-AI Support**: Choose from OpenAI GPT-4o, Google Gemini, or Claude (via AWS Bedrock)
 - 🔑 **Client-Side API Keys**: Securely store your API keys in your browser
 - 📝 **Interactive Quiz**: Select answers and get instant feedback
 - 🎯 **Smart Scoring**: See your results with explanations
@@ -19,23 +19,31 @@ An AI-powered Multiple Choice Questions generator that creates 10 MCQs based on 
 
 - Node.js 18+ 
 - pnpm (recommended) or npm
-- OpenAI API key (for GPT models)
-- AWS Account with Bedrock access (for Claude models, optional)
+- At least one AI provider API key:
+  - OpenAI API key (for GPT-4o)
+  - Google Gemini API key (for Gemini)
+  - AWS Account with Bedrock access (for Claude, optional)
 
 ### Installation
 
 1. Clone this repository
+
 2. Install dependencies:
    ```bash
    pnpm install
    ```
 
-3. Start the development server:
+3. Install the Google AI SDK (for Gemini support):
+   ```bash
+   pnpm add @ai-sdk/google
+   ```
+
+4. Start the development server:
    ```bash
    pnpm dev
    ```
 
-4. Open [http://localhost:3000](http://localhost:3000) in your browser
+5. Open [http://localhost:3000](http://localhost:3000) in your browser
 
 ### API Key Configuration
 
@@ -85,8 +93,8 @@ AWS_REGION=us-east-1
    - Examples: "JavaScript fundamentals", "World War 2", "Photosynthesis", "Machine Learning basics"
 
 3. **Choose Settings**: 
-   - Select number of questions (5, 10, 15, or 20)
-   - Choose AI model (OpenAI GPT-4o or Claude 4 Sonnet)
+   - Select number of questions (2, 5, 10, 15, or 20)
+   - Choose AI model (OpenAI GPT-4o, Google Gemini, or Claude via Bedrock)
    - Pick difficulty level (Easy, Medium, or Hard)
 
 4. **Generate Questions**: 
@@ -103,8 +111,11 @@ AWS_REGION=us-east-1
 
 - **Frontend**: Next.js 15, React 19, TypeScript
 - **Styling**: Tailwind CSS
-- **AI**: OpenAI GPT-4o-mini & Claude 3.5 Sonnet via Vercel AI SDK
-- **Cloud**: AWS Bedrock for Claude integration
+- **AI Models**: 
+  - OpenAI GPT-4o via `@ai-sdk/openai`
+  - Google Gemini 1.5 Pro via `@ai-sdk/google`
+  - Claude via AWS Bedrock with `@ai-sdk/amazon-bedrock`
+- **AI SDK**: Vercel AI SDK
 - **Package Manager**: pnpm
 
 ## Security & Privacy
